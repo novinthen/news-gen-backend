@@ -12,6 +12,9 @@ const PORT = process.env.PORT || 3001;
 
 // Google AI API key from environment variable
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+if (!GEMINI_API_KEY) {
+  return res.status(500).json({ error: "Missing Gemini API key" });
+}
 
 // List of cabang branches
 const CABANGS = [
