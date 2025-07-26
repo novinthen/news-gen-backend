@@ -19,40 +19,36 @@ const CABANGS = [
   "BUKIT BINTANG", "LEMBAH PANTAI", "SEPUTEH", "CHERAS", "BANDAR TUN RAZAK", "PUTRAJAYA", "LABUAN"
 ];
 
-// Gemini integration
 async function generateContent(articleUrl, stance, cabang) {
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  if (!GEMINI_API_KEY) throw new Error("Missing Gemini API key");
-
-  const GEMINI_MODEL = "gemini-1.5-pro"; // or "gemini-1.5-flash"
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+  if (!OPENAI_API_KEY) throw new Error("Missing OpenAI API key");
 
   const prompt = `Write a Facebook post and a Tweet for the ${cabang} branch, stance: ${stance}, about this article: ${articleUrl}.
 Format your response as:
 Facebook: <your facebook post>
 Tweet: <your tweet>`;
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
-      })
-    }
-  );
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${OPENAI_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
 
   const data = await response.json();
+  if (data.error) throw new Error(data.error.message || "OpenAI API error");
 
-  if (data.error) {
-    throw new Error(data.error.message || "Gemini API error");
-  }
-
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
+  const text = data.choices?.[0]?.message?.content || "No response";
   const facebook = text.match(/Facebook:(.*)/i)?.[1]?.trim() || text;
   const tweet = text.match(/Tweet:(.*)/i)?.[1]?.trim() || text;
   return { facebook, tweet };
 }
+
 
 
 app.post('/generate', async (req, res) => {
