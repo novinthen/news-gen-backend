@@ -22,7 +22,7 @@ async function generateContent(articleUrl, stance, cabang) {
   if (!OPENAI_API_KEY) throw new Error("Missing OpenAI API key");
 
   // For minimal test, uncomment the next line and comment out the prompt below
-  const prompt = "Say hello world";
+  // const prompt = "Say hello world";
   const prompt = `Write a Facebook post and a Tweet for the ${cabang} branch, stance: ${stance}, about this article: ${articleUrl}.
 Format your response as:
 Facebook: <your facebook post>
