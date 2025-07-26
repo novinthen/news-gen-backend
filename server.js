@@ -13,8 +13,11 @@ const PORT = process.env.PORT || 3001;
 
 // List of cabang branches
 const CABANGS = [
-  "KEPONG", "BATU", "WANGSA MAJU", "SEGAMBUT", "SETIAWANGSA", "TITIWANGSA",
-  "BUKIT BINTANG", "LEMBAH PANTAI", "SEPUTEH", "CHERAS", "BANDAR TUN RAZAK", "PUTRAJAYA", "LABUAN"
+  "KEPONG"
+];
+// or for two branches:
+const CABANGS = [
+  "KEPONG", "BATU"
 ];
 
 async function generateContent(articleUrl, stance, cabang) {
