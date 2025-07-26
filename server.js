@@ -24,13 +24,15 @@ async function generateContent(articleUrl, stance, cabang) {
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
   if (!GEMINI_API_KEY) throw new Error("Missing Gemini API key");
 
+  const GEMINI_MODEL = "gemini-1.5-pro"; // or "gemini-1.5-flash"
+
   const prompt = `Write a Facebook post and a Tweet for the ${cabang} branch, stance: ${stance}, about this article: ${articleUrl}.
 Format your response as:
 Facebook: <your facebook post>
 Tweet: <your tweet>`;
 
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -51,6 +53,7 @@ Tweet: <your tweet>`;
   const tweet = text.match(/Tweet:(.*)/i)?.[1]?.trim() || text;
   return { facebook, tweet };
 }
+
 
 app.post('/generate', async (req, res) => {
   const { articleUrl, stance } = req.body;
