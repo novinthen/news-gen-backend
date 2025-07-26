@@ -3,7 +3,9 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { kv } = require('@vercel/kv');
-require('dotenv').config();
+
+// If using Node 18+ on Vercel, fetch is built-in. If not, uncomment the next line:
+// const fetch = require('node-fetch');
 
 const app = express();
 app.use(cors());
@@ -11,25 +13,43 @@ app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 3001;
 
-// Google AI API key from environment variable
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-if (!GEMINI_API_KEY) {
-  return res.status(500).json({ error: "Missing Gemini API key" });
-}
-
 // List of cabang branches
 const CABANGS = [
   "KEPONG", "BATU", "WANGSA MAJU", "SEGAMBUT", "SETIAWANGSA", "TITIWANGSA",
   "BUKIT BINTANG", "LEMBAH PANTAI", "SEPUTEH", "CHERAS", "BANDAR TUN RAZAK", "PUTRAJAYA", "LABUAN"
 ];
 
-// Helper: Call Google AI API (pseudo, replace with your actual call)
+// Gemini integration
 async function generateContent(articleUrl, stance, cabang) {
-  // TODO: Replace with actual Google AI API call
-  return {
-    facebook: `FB post for ${cabang} (${stance}) about ${articleUrl}`,
-    tweet: `Tweet for ${cabang} (${stance}) about ${articleUrl}`
-  };
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  if (!GEMINI_API_KEY) throw new Error("Missing Gemini API key");
+
+  const prompt = `Write a Facebook post and a Tweet for the ${cabang} branch, stance: ${stance}, about this article: ${articleUrl}.
+Format your response as:
+Facebook: <your facebook post>
+Tweet: <your tweet>`;
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      })
+    }
+  );
+
+  const data = await response.json();
+
+  if (data.error) {
+    throw new Error(data.error.message || "Gemini API error");
+  }
+
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
+  const facebook = text.match(/Facebook:(.*)/i)?.[1]?.trim() || text;
+  const tweet = text.match(/Tweet:(.*)/i)?.[1]?.trim() || text;
+  return { facebook, tweet };
 }
 
 app.post('/generate', async (req, res) => {
@@ -41,7 +61,7 @@ app.post('/generate', async (req, res) => {
   try {
     const results = [];
     for (const cabang of CABANGS) {
-      // Call your AI function here
+      // Call Gemini for each cabang
       const content = await generateContent(articleUrl, stance, cabang);
       results.push({ cabang, ...content });
     }
@@ -51,6 +71,7 @@ app.post('/generate', async (req, res) => {
 
     res.json({ results });
   } catch (err) {
+    console.error("Error in /generate:", err);
     res.status(500).json({ error: err.message });
   }
 });
