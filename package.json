@@ -1,18 +1,18 @@
 {
-  "name": "news-gen-backend",
-  "version": "1.0.0",
-  "main": "server.js",
-  "type": "commonjs",
-  "scripts": {
-    "start": "node server.js",
-    "build": "echo 'No build step needed'"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "body-parser": "^1.20.2",
-    "@vercel/kv": "^0.2.0",
-    "dotenv": "^16.3.1"
-    "node-fetch": "^3.3.2",
-  }
+    "name": "news-gen-backend",
+    "version": "1.0.0",
+    "main": "server.js",
+    "type": "commonjs",
+    "scripts": {
+        "start": "node server.js",
+        "build": "echo 'No build step needed'"
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "cors": "^2.8.5",
+        "body-parser": "^1.20.2",
+        "@vercel/kv": "^0.2.0",
+        "dotenv": "^16.3.1",
+        "node-fetch": "^3.3.2"
+    }
 }
