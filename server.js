@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 const PORT = process.env.PORT || 3001;
 
 // Google AI API key from environment variable
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // List of cabang branches
 const CABANGS = [
